@@ -1,6 +1,18 @@
 version: "3.8"
 
 services:
+  minio:
+    image: quay.io/minio/minio
+    command: server /data --console-address ":9001"
+    ports:
+      - 9000:9000
+      - 9001:9001
+    volumes:
+      - minio:/data
+    environment:
+      - MINIO_ROOT_USER=admin
+      - MINIO_ROOT_PASSWORD=password
+
   redis:
     image: 'bitnami/redis:latest'
     environment:
@@ -23,5 +35,7 @@ networks:
   default:
 
 volumes:
+  minio:
+    name: minio-db-data
   redis:
     name: redis-data
