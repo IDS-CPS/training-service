@@ -4,11 +4,14 @@ from worker.celery import app
 from celery.utils.log import get_task_logger
 from service.data_preprocessor import DataPreprocessor
 from service.training.autoencoder import Autoencoder
+from service.training.callback import UpdateTaskState
+from schemas.training import BaseTrainingParam
 
-@app.task(name="train_autoencoder")
-def train_ae(df_name, split_ratio):
+@app.task(name="train_autoencoder", bind=True)
+def train_ae(self, param: BaseTrainingParam):
+    print(param)
     preprocessor = DataPreprocessor(10, 10)
-    scaler, x_train, y_train, x_test, y_test = preprocessor.preprocess(df_name, split_ratio)
+    scaler, x_train, y_train, x_test, y_test = preprocessor.preprocess(param["df_name"], param["split_ratio"])
 
     train_tensor = preprocessor.process_tensor(x_train, y_train)
     test_tensor = preprocessor.process_tensor(x_test, y_test)
@@ -23,23 +26,11 @@ def train_ae(df_name, split_ratio):
 
     history = model.fit(
         train_tensor, 
-        epochs=1,
+        epochs=param["epochs"],
         steps_per_epoch=100,
         validation_data=test_tensor,
         validation_steps=50,
-        callbacks=[early_stopping]
+        callbacks=[early_stopping, UpdateTaskState(task=self, total_epoch=param["epochs"])]
     )
 
-    return 'OK'
-
-@app.task
-def train_cnn():
-    pass
-
-@app.task
-def train_lstm():
-    pass
-
-@app.task
-def train_pca():
-    pass
+    return {'curent_epoch': param["epochs"], 'total_epoch': param["epochs"]}
