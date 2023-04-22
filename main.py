@@ -5,6 +5,7 @@ from fastapi.encoders import jsonable_encoder
 from celery.result import AsyncResult
 
 from worker.tasks.autoencoder import train_ae
+from worker.tasks.pca import train_pca
 from schemas.common import CommonResponse
 from schemas.training import BaseTrainingParam
 
@@ -24,6 +25,12 @@ def read_root():
 @app.post("/train-ae")
 async def train_ae_model(param: BaseTrainingParam):
     task = train_ae.delay(jsonable_encoder(param))
+
+    return {"task_id": str(task)}
+
+@app.post("/train-pca")
+async def train_pca_model(param: BaseTrainingParam):
+    task = train_pca.delay(jsonable_encoder(param))
 
     return {"task_id": str(task)}
 

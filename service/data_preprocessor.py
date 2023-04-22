@@ -6,10 +6,11 @@ from sklearn.preprocessing import MinMaxScaler
 from tensorflow.data import Dataset
 
 class DataPreprocessor():
-    def __init__(self, history_size, target_size):
+    def __init__(self, history_size=10, target_size=10):
         self.history_size = history_size
         self.target_size = target_size
         self.scaler = MinMaxScaler()
+        self.used_features = []
 
     def _read_df(self, df_name: str):
         df = pd.read_csv(df_name, delimiter=";", decimal=",")
@@ -26,13 +27,15 @@ class DataPreprocessor():
         return train_df, test_df
 
     def _feature_selection(self, train_df, test_df):
-        features_considered = []
+        used_features = []
         for column in train_df.columns:
           ks_result = ks_2samp(train_df[column],test_df[column])
           if (ks_result.statistic < 0.02):
-            features_considered.append(column)
+            used_features.append(column)
 
-        return train_df[features_considered], test_df[features_considered]
+        self.used_features = used_features
+
+        return train_df[used_features], test_df[used_features]
 
     def _scale_data(self, train_df, test_df):
         self.scaler.fit(train_df)
@@ -63,10 +66,16 @@ class DataPreprocessor():
 
         print("Training input shape: ", x_train.shape, y_train.shape)
 
-        return self.scaler, x_train, y_train, x_test, y_test
+        return x_train, y_train, x_test, y_test
 
     def process_tensor(self, x_data, y_data):
         tensor = Dataset.from_tensor_slices((x_data, y_data))
         tensor = tensor.cache().shuffle(50000).batch(256).repeat()
 
         return tensor
+
+    def get_scaler(self):
+        return self.scaler
+
+    def get_used_features(self):
+        return self.used_features

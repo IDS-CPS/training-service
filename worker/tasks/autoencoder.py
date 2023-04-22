@@ -1,17 +1,14 @@
 import tensorflow as tf
 
 from worker.celery import app
-from celery.utils.log import get_task_logger
 from service.data_preprocessor import DataPreprocessor
 from service.training.autoencoder import Autoencoder
 from service.training.callback import UpdateTaskState
-from schemas.training import BaseTrainingParam
 
 @app.task(name="train_autoencoder", bind=True)
-def train_ae(self, param: BaseTrainingParam):
-    print(param)
+def train_ae(self, param):
     preprocessor = DataPreprocessor(10, 10)
-    scaler, x_train, y_train, x_test, y_test = preprocessor.preprocess(param["df_name"], param["split_ratio"])
+    x_train, y_train, x_test, y_test = preprocessor.preprocess(param["df_name"], param["split_ratio"])
 
     train_tensor = preprocessor.process_tensor(x_train, y_train)
     test_tensor = preprocessor.process_tensor(x_test, y_test)
