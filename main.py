@@ -7,7 +7,7 @@ from celery.result import AsyncResult
 from worker.tasks.autoencoder import train_ae
 from worker.tasks.pca import train_pca
 from schemas.common import CommonResponse
-from schemas.training import BaseTrainingParam
+from schemas.training import AutoencoderParam, PCAParam
 
 app = FastAPI()
 app.add_middleware(
@@ -23,13 +23,13 @@ def read_root():
     return {"message": "IDS-CPS Training Service"}
 
 @app.post("/train-ae")
-async def train_ae_model(param: BaseTrainingParam):
+async def train_ae_model(param: AutoencoderParam):
     task = train_ae.delay(jsonable_encoder(param))
 
     return {"task_id": str(task)}
 
 @app.post("/train-pca")
-async def train_pca_model(param: BaseTrainingParam):
+async def train_pca_model(param: PCAParam):
     task = train_pca.delay(jsonable_encoder(param))
 
     return {"task_id": str(task)}

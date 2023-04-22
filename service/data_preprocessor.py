@@ -11,6 +11,8 @@ class DataPreprocessor():
         self.target_size = target_size
         self.scaler = MinMaxScaler()
         self.used_features = []
+        self.train_data = None
+        self.test_data = None
 
     def _read_df(self, df_name: str):
         df = pd.read_csv(df_name, delimiter=";", decimal=",")
@@ -39,10 +41,10 @@ class DataPreprocessor():
 
     def _scale_data(self, train_df, test_df):
         self.scaler.fit(train_df)
-        train_data = self.scaler.transform(train_df)
-        test_data = self.scaler.transform(test_df)
+        self.train_data = self.scaler.transform(train_df)
+        self.test_data = self.scaler.transform(test_df)
 
-        return train_data, test_data
+        return self.train_data, self.test_data
 
     def _create_sequences(self, values):
         data = []
@@ -76,6 +78,9 @@ class DataPreprocessor():
 
     def get_scaler(self):
         return self.scaler
+
+    def get_train_data(self):
+        return self.train_data
 
     def get_used_features(self):
         return self.used_features

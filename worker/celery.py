@@ -1,14 +1,15 @@
 from celery import Celery
+from config.settings import settings
 
 app = Celery(
     'ircm_training',
-    broker='redis://localhost:6379/0',
-    backend='redis://localhost:6379/0',
+    broker=f'redis://{settings.REDIS_HOST}:{settings.REDIS_PORT}/0',
+    backend=f'redis://{settings.REDIS_HOST}:{settings.REDIS_PORT}/0',
     include=['worker.tasks.autoencoder', 'worker.tasks.pca']
 )
 
 app.conf.update(
-    result_expires=60
+    result_expires=settings.REDIS_TTL
 )
 
 if __name__ == '__main__':
