@@ -6,9 +6,8 @@ from sklearn.preprocessing import MinMaxScaler
 from tensorflow.data import Dataset
 
 class DataPreprocessor():
-    def __init__(self, history_size=10, target_size=10):
+    def __init__(self, history_size=10):
         self.history_size = history_size
-        self.target_size = target_size
         self.scaler = MinMaxScaler()
         self.used_features = []
         self.train_data = None
@@ -32,7 +31,7 @@ class DataPreprocessor():
         used_features = []
         for column in train_df.columns:
           ks_result = ks_2samp(train_df[column],test_df[column])
-          if (ks_result.statistic < 0.02):
+          if (ks_result.statistic < 0.2):
             used_features.append(column)
 
         self.used_features = used_features
@@ -50,14 +49,13 @@ class DataPreprocessor():
         data = []
         target = []
 
-        for i in range(len(values)//self.history_size-1):
-            start_index = self.history_size * i
-            end_index = start_index + self.history_size
-            data.append(values[start_index:end_index])
-            target.append(values[end_index:end_index+self.target_size])
+        for i in range(len(values)-history_size):
+            end_index = i + history_size
+            data.append(values[i:end_index])
+            target.append(values[end_index])
         
         return np.array(data), np.array(target)
-
+        
     def preprocess(self, df_name, split_ratio):
         df = self._read_df(df_name)
         train_df, test_df = self._train_test_split(df, split_ratio)
@@ -81,6 +79,9 @@ class DataPreprocessor():
 
     def get_train_data(self):
         return self.train_data
+
+    def get_test_data(self):
+        return self.test_data
 
     def get_used_features(self):
         return self.used_features

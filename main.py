@@ -7,7 +7,7 @@ from celery.result import AsyncResult
 from worker.tasks.autoencoder import train_ae
 from worker.tasks.pca import train_pca
 from schemas.common import CommonResponse
-from schemas.training import AutoencoderParam, PCAParam
+from schemas.training import AutoencoderParam, PCAParam, OneDCNNParam, LSTMParam, TaskStatus, TaskAck
 
 app = FastAPI()
 app.add_middleware(
@@ -22,19 +22,29 @@ app.add_middleware(
 def read_root():
     return {"message": "IDS-CPS Training Service"}
 
-@app.post("/train-ae")
+@app.post("/train-ae", response_model=TaskAck)
 async def train_ae_model(param: AutoencoderParam):
     task = train_ae.delay(jsonable_encoder(param))
 
     return {"task_id": str(task)}
 
-@app.post("/train-pca")
+@app.post("/train-pca", response_model=TaskAck)
 async def train_pca_model(param: PCAParam):
     task = train_pca.delay(jsonable_encoder(param))
 
     return {"task_id": str(task)}
 
-@app.get('/result/{task_id}')
+@app.post("/train-cnn", response_model=TaskAck)
+async def train_cnn_model(param: OneDCNNParam):
+
+    return {"task_id": str(task)}
+
+@app.post("/train-lstm", response_model=TaskAck)
+async def train_lstm_model(param: LSTMParam):
+    
+    return {"task_id": str(task)}
+
+@app.get('/result/{task_id}', response_model=TaskStatus)
 async def fetch_result(task_id):
     task = AsyncResult(task_id)
 

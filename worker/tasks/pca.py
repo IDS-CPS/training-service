@@ -26,7 +26,6 @@ def train_pca(self, param):
     scaler = preprocessor.get_scaler()
 
     model_id = generate_id()
-
     minio_client.save_file(e_mean, "npy/pca", f"mean-{model_id}")
     minio_client.save_file(e_std, "npy/pca", f"std-{model_id}")
     minio_client.save_file(scaler, "scaler", f"pca-{model_id}")
