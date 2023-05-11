@@ -62,7 +62,7 @@ services:
     env_file:
       - .env.docker
     ports:
-      - 5557:5555
+      - 5555:5555
     depends_on:
       - redis
 
