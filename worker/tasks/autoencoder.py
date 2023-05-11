@@ -31,7 +31,7 @@ def train_ae(self, param):
         steps_per_epoch=100,
         validation_data=test_tensor,
         validation_steps=50,
-        callbacks=[early_stopping, UpdateTaskState(task=self, total_epoch=param["epochs"])]
+        callbacks=[early_stopping]
     )
 
     loss, mae = model.evaluate(x_test, y_test)

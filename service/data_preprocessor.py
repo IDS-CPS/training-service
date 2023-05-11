@@ -15,7 +15,6 @@ class DataPreprocessor():
 
     def _read_df(self, df_name: str):
         df = pd.read_csv(df_name)
-        # df = pd.read_csv(df_name, delimiter=";", decimal=",")
         df = df.drop("timestamp", axis=1)
 
         return df
@@ -35,7 +34,6 @@ class DataPreprocessor():
             used_features.append(column)
 
         self.used_features = used_features
-        print(self.used_features)
 
         return train_df[used_features], test_df[used_features]
 
