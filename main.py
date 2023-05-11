@@ -6,6 +6,8 @@ from celery.result import AsyncResult
 
 from worker.tasks.autoencoder import train_ae
 from worker.tasks.pca import train_pca
+from worker.tasks.cnn import train_cnn
+from worker.tasks.lstm import train_lstm
 from schemas.common import CommonResponse
 from schemas.training import AutoencoderParam, PCAParam, OneDCNNParam, LSTMParam, TaskStatus, TaskAck
 
@@ -36,11 +38,13 @@ async def train_pca_model(param: PCAParam):
 
 @app.post("/train-cnn", response_model=TaskAck)
 async def train_cnn_model(param: OneDCNNParam):
+    task = train_cnn.delay(jsonable_encoder(param))
 
     return {"task_id": str(task)}
 
 @app.post("/train-lstm", response_model=TaskAck)
 async def train_lstm_model(param: LSTMParam):
+    task = train_lstm.delay(jsonable_encoder(param))
     
     return {"task_id": str(task)}
 

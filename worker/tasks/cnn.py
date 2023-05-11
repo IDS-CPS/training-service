@@ -8,7 +8,7 @@ from service.minio import minio_client
 from tensorflow.keras.layers import Conv1D, MaxPooling1D, Flatten, Dropout, Dense, Reshape
 
 @app.task(name="train_cnn", bind=True)
-def train_ae(self, param):
+def train_cnn(self, param):
     preprocessor = DataPreprocessor(param["history_size"])
     x_train, y_train, x_test, y_test = preprocessor.preprocess(param["df_name"], param["split_ratio"])
 
@@ -48,7 +48,7 @@ def train_ae(self, param):
         callbacks=[early_stopping, UpdateTaskState(task=self, total_epoch=param["epochs"])]
     )
 
-    loss, mean_error = model.evaluate(x_test, y_test)
+    loss, mae = model.evaluate(x_test, y_test)
 
     scaler = preprocessor.get_scaler()
     e_mean, e_std = calculate_error(model, preprocessor.get_test_data(), param["history_size"])

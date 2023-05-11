@@ -49,8 +49,8 @@ class DataPreprocessor():
         data = []
         target = []
 
-        for i in range(len(values)-history_size):
-            end_index = i + history_size
+        for i in range(len(values)-self.history_size):
+            end_index = i + self.history_size
             data.append(values[i:end_index])
             target.append(values[end_index])
         
