@@ -1,6 +1,17 @@
 version: "3.8"
 
 services:
+  fastapi:
+    build: .
+    container_name: ircm-api-service
+    ports:
+      - 8000:8000
+    env_file:
+      - .env
+    depends_on:
+      - minio
+      - redis
+
   minio:
     image: quay.io/minio/minio
     command: server /data --console-address ":9001"
@@ -15,8 +26,7 @@ services:
 
   redis:
     image: 'bitnami/redis:latest'
-    environment:
-      - ALLOW_EMPTY_PASSWORD=yes
+    env_file: .env.docker
     ports:
       - "6379:6379"
 
@@ -24,11 +34,37 @@ services:
     container_name: redis-commander
     hostname: redis-commander
     image: rediscommander/redis-commander:latest
-    environment:
-      REDIS_HOST: redis
-      REDIS_PORT: redis:6379
+    env_file: .env.docker
     ports:
       - 8081:8081
+
+  worker:
+    build:
+      context: .
+      dockerfile: ./worker/Dockerfile
+    image: celery_worker
+    command: /start-celeryworker
+    volumes:
+      - .:/app
+    env_file:
+      - .env.docker
+    depends_on:
+      - redis
+
+  flower:
+    build:
+      context: .
+      dockerfile: ./worker/Dockerfile
+    image: celery_flower
+    command: /start-flower
+    volumes:
+      - .:/app
+    env_file:
+      - .env.docker
+    ports:
+      - 5557:5555
+    depends_on:
+      - redis
 
 
 networks: 

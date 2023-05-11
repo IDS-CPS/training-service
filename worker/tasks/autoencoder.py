@@ -19,9 +19,11 @@ def train_ae(self, param):
 
     early_stopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=20, mode='min', verbose=1)
 
-    model.compile(loss=tf.keras.losses.MeanSquaredError(),
-                    optimizer=tf.keras.optimizers.experimental.AdamW(),
-                    metrics=[tf.keras.metrics.MeanAbsoluteError()])
+    model.compile(
+        loss=tf.keras.losses.MeanSquaredError(),
+        optimizer=tf.keras.optimizers.experimental.AdamW(),
+        metrics=[tf.keras.metrics.MeanAbsoluteError()]
+    )
 
     history = model.fit(
         train_tensor, 
