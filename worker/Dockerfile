@@ -17,6 +17,7 @@ RUN apt-get update \
 # Requirements are installed here to ensure they will be cached.
 COPY ./requirements.txt /requirements.txt
 RUN pip install -r /requirements.txt
+RUN pip install tensorflow
 
 # Celery worker
 COPY ./worker/worker/start /start-celeryworker
