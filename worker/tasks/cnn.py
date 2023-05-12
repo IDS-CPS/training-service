@@ -5,6 +5,7 @@ from service.data_preprocessor import DataPreprocessor
 from service.training.callback import UpdateTaskState
 from service.training.utils import generate_id, calculate_error
 from service.minio import minio_client
+from service.management import management_service
 from tensorflow.keras.layers import Conv1D, MaxPooling1D, Flatten, Dropout, Dense, Reshape
 
 @app.task(name="train_cnn", bind=True)
@@ -54,9 +55,11 @@ def train_cnn(self, param):
     e_mean, e_std = calculate_error(model, preprocessor.get_test_data(), param["history_size"])
 
     model_id = generate_id()
-    minio_client.save_file(e_mean, "npy/cnn", f"mean-{model_id}")
-    minio_client.save_file(e_std, "npy/cnn", f"std-{model_id}")
-    minio_client.save_file(scaler, "scaler/cnn", f"scaler-{model_id}")
-    minio_client.save_keras_model(model, f"cnn-{model_id}")
+    mean_name = minio_client.save_file(e_mean, "npy/cnn", f"mean-{model_id}")
+    std_name = minio_client.save_file(e_std, "npy/cnn", f"std-{model_id}")
+    scaler_name = minio_client.save_file(scaler, "scaler/cnn", f"scaler-{model_id}")
+    model_name = minio_client.save_keras_model(model, f"cnn-{model_id}")
+
+    management_service.notify_train_finished(str(self.request.id), model_name, scaler_name, mean_name, std_name)
 
     return {'loss': loss, 'mae': mae}

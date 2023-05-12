@@ -6,6 +6,7 @@ from service.training.autoencoder import Autoencoder
 from service.training.callback import UpdateTaskState
 from service.training.utils import generate_id, calculate_error
 from service.minio import minio_client
+from service.management import management_service
 
 @app.task(name="train_autoencoder", bind=True)
 def train_ae(self, param):
@@ -40,9 +41,11 @@ def train_ae(self, param):
     e_mean, e_std = calculate_error(model, preprocessor.get_test_data(), param["history_size"])
 
     model_id = generate_id()
-    minio_client.save_file(e_mean, "npy/ae", f"mean-{model_id}")
-    minio_client.save_file(e_std, "npy/ae", f"std-{model_id}")
-    minio_client.save_file(scaler, "scaler/ae", f"scaler-{model_id}")
-    minio_client.save_keras_model(model, f"ae-{model_id}")
+    mean_name = minio_client.save_file(e_mean, "npy/ae", f"mean-{model_id}")
+    std_name = minio_client.save_file(e_std, "npy/ae", f"std-{model_id}")
+    scaler_name = minio_client.save_file(scaler, "scaler/ae", f"scaler-{model_id}")
+    model_name = minio_client.save_keras_model(model, f"ae-{model_id}")
+
+    management_service.notify_train_finished(str(self.request.id), model_name, scaler_name, mean_name, std_name)
 
     return {'loss': loss, 'mae': mae}

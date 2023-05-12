@@ -5,6 +5,7 @@ from worker.celery import app
 from service.data_preprocessor import DataPreprocessor
 from service.training.utils import generate_id
 from service.minio import minio_client
+from service.management import management_service
 
 @app.task(name="train_pca", bind=True)
 def train_pca(self, param):
@@ -26,9 +27,11 @@ def train_pca(self, param):
     scaler = preprocessor.get_scaler()
 
     model_id = generate_id()
-    minio_client.save_file(e_mean, "npy/pca", f"mean-{model_id}")
-    minio_client.save_file(e_std, "npy/pca", f"std-{model_id}")
-    minio_client.save_file(scaler, "scaler", f"pca-{model_id}")
-    minio_client.save_file(pca, "model", f"pca-{model_id}")
+    mean_name = minio_client.save_file(e_mean, "npy/pca", f"mean-{model_id}")
+    std_name = minio_client.save_file(e_std, "npy/pca", f"std-{model_id}")
+    scaler_name = minio_client.save_file(scaler, "scaler", f"pca-{model_id}")
+    model_name = minio_client.save_file(pca, "model", f"pca-{model_id}")
+
+    management_service.notify_train_finished(str(self.request.id), model_name, scaler_name, mean_name, std_name)
 
     return "OK"
