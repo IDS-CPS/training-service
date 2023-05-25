@@ -28,13 +28,16 @@ class ManagementService():
             'feature_used': feature_used,
             'history_size': history_size
         }
+
         r = requests.post(
             f'{self.base_url}/api/v1/learning-model/{task_id}/confirmation',
-            data=json.dumps(payload)
+            json=payload
         )
 
         if r.status_code != requests.codes.ok:
-            print(r.status_code)
-            print("failed notifying")
+            print(r.json())
+            return
 
+        print("success calling")
+        
 management_service = ManagementService(settings)
