@@ -21,6 +21,7 @@ class ManagementService():
     ):
         print("calling management service")
         payload = {
+            'tracker_id': task_id,
             'model_name': model_name,
             'scaler_name': scaler_name,
             'mean_name': mean_name,
@@ -30,7 +31,7 @@ class ManagementService():
         }
 
         r = requests.post(
-            f'{self.base_url}/api/v1/learning-model/{task_id}/confirmation',
+            f'{self.base_url}/api/v1/learning-model/confirmation',
             json=payload
         )
 
