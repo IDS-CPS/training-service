@@ -3,7 +3,7 @@ version: "3.8"
 services:
   fastapi:
     build: .
-    container_name: ircm-api-service
+    container_name: training-service
     ports:
       - 8000:8000
     env_file:
@@ -42,7 +42,7 @@ services:
     build:
       context: .
       dockerfile: ./worker/Dockerfile
-    image: celery-worker
+    image: celery-app
     command: /start-celeryworker
     volumes:
       - .:/app
@@ -52,10 +52,7 @@ services:
       - redis
 
   flower:
-    build:
-      context: .
-      dockerfile: ./worker/Dockerfile
-    image: celery-flower
+    image: celery-app
     command: /start-flower
     volumes:
       - .:/app
@@ -65,6 +62,7 @@ services:
       - 5555:5555
     depends_on:
       - redis
+      - worker
 
 
 networks: 

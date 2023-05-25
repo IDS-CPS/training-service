@@ -84,3 +84,6 @@ class DataPreprocessor():
 
     def get_used_features(self):
         return self.used_features
+
+    def get_history_size(self):
+        return self.history_size

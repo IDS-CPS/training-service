@@ -32,6 +32,14 @@ def train_pca(self, param):
     scaler_name = minio_client.save_file(scaler, "scaler", f"pca-{model_id}")
     model_name = minio_client.save_file(pca, "model", f"pca-{model_id}")
 
-    management_service.notify_train_finished(str(self.request.id), model_name, scaler_name, mean_name, std_name)
+    management_service.notify_train_finished(
+        str(self.request.id), 
+        model_name, 
+        scaler_name, 
+        mean_name, 
+        std_name,
+        preprocessor.get_used_features(),
+        preprocessor.get_history_size()
+    )
 
     return "OK"

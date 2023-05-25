@@ -46,6 +46,14 @@ def train_ae(self, param):
     scaler_name = minio_client.save_file(scaler, "scaler/ae", f"scaler-{model_id}")
     model_name = minio_client.save_keras_model(model, f"ae-{model_id}")
 
-    management_service.notify_train_finished(str(self.request.id), model_name, scaler_name, mean_name, std_name)
+    management_service.notify_train_finished(
+        str(self.request.id), 
+        model_name, 
+        scaler_name, 
+        mean_name, 
+        std_name,
+        preprocessor.get_used_features(),
+        preprocessor.get_history_size()
+    )
 
     return {'loss': loss, 'mae': mae}
