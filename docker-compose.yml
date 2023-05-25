@@ -39,9 +39,6 @@ services:
       - 8081:8081
 
   worker:
-    build:
-      context: .
-      dockerfile: ./worker/Dockerfile
     image: celery-app
     command: /start-celeryworker
     volumes:
