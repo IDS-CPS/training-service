@@ -1,4 +1,5 @@
 import tensorflow as tf
+import numpy as np
 
 from worker.celery import app
 from service.data_preprocessor import DataPreprocessor
@@ -16,7 +17,7 @@ def train_ae(self, param):
     train_tensor = preprocessor.process_tensor(x_train, y_train)
     test_tensor = preprocessor.process_tensor(x_test, y_test)
 
-    model = Autoencoder(x_train.shape)
+    model = Autoencoder(x_train.shape, param["compact_ratio"])
 
     early_stopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=20, mode='min', verbose=1)
 
@@ -32,13 +33,15 @@ def train_ae(self, param):
         steps_per_epoch=100,
         validation_data=test_tensor,
         validation_steps=50,
-        callbacks=[early_stopping]
+        callbacks=[early_stopping, UpdateTaskState(self, param["epochs"])]
     )
 
     loss, mae = model.evaluate(x_test, y_test)
 
     scaler = preprocessor.get_scaler()
     e_mean, e_std = calculate_error(model, preprocessor.get_test_data(), param["history_size"])
+    # e_mean = np.empty((2,3))
+    # e_std = np.empty((2,3))
 
     model_id = generate_id()
     mean_name = minio_client.save_file(e_mean, "npy/ae", f"mean-{model_id}")

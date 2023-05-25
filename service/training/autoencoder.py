@@ -37,11 +37,11 @@ class Decoder(layers.Layer):
     return self.output_layer(activation)
 
 class Autoencoder(tf.keras.Model):
-  def __init__(self, train_shape):
+  def __init__(self, train_shape, compact_ratio):
     super(Autoencoder, self).__init__()
     self.train_shape = train_shape
-    self.encoder = Encoder(intermediate_dim=0.5*train_shape[1]*train_shape[2])
-    self.decoder = Decoder(original_dim=train_shape[1]*train_shape[2], intermediate_dim=0.5*train_shape[1]*train_shape[2])
+    self.encoder = Encoder(intermediate_dim=compact_ratio*train_shape[1]*train_shape[2])
+    self.decoder = Decoder(original_dim=train_shape[1]*train_shape[2], intermediate_dim=compact_ratio*train_shape[1]*train_shape[2])
     self.target_output = layers.Dense(train_shape[2])
   
   def call(self, input_features):

@@ -1,10 +1,12 @@
 from pydantic import BaseModel
+from typing import Any
 
 class BaseTrainingParam(BaseModel):
     df_name: str
     split_ratio: float
 
 class AutoencoderParam(BaseTrainingParam):
+    compact_ratio: float
     history_size: int
     epochs: int
 
@@ -29,4 +31,4 @@ class TaskAck(BaseModel):
 
 class TaskStatus(BaseModel):
     state: str
-    meta: dict
+    meta: Any

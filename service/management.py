@@ -19,6 +19,7 @@ class ManagementService():
         feature_used: List[str],
         history_size: int
     ):
+        print("calling management service")
         payload = {
             'model_name': model_name,
             'scaler_name': scaler_name,
@@ -33,6 +34,7 @@ class ManagementService():
         )
 
         if r.status_code != requests.codes.ok:
+            print(r.status_code)
             print("failed notifying")
 
 management_service = ManagementService(settings)
