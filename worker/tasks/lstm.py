@@ -6,7 +6,7 @@ from service.training.callback import UpdateTaskState
 from service.training.utils import generate_id, calculate_error
 from service.minio import minio_client
 from service.management import management_service
-from tensorflow.keras.layers import LSTM, Dense, Bidirectional
+from tensorflow.keras.layers import LSTM, Dense
 
 @app.task(name="train_lstm", bind=True)
 def train_lstm(self, param):
@@ -19,11 +19,9 @@ def train_lstm(self, param):
     n_units = param["n_units"]
 
     model = tf.keras.models.Sequential([ 
-        Bidirectional(LSTM(n_units, return_sequences=True, input_shape=x_train.shape[1:])),
-        Bidirectional(LSTM(n_units//2, return_sequences=True)),
-        Bidirectional(LSTM(n_units//4, return_sequences=True)),
-        Bidirectional(LSTM(n_units//8, return_sequences=True)),
-        Bidirectional(LSTM(n_units//16)),
+        LSTM(n_units, return_sequences=True, input_shape=x_train.shape[1:]),
+        LSTM(n_units, return_sequences=True),
+        LSTM(n_units),
         Dense(x_train.shape[2]),
     ]) 
 
