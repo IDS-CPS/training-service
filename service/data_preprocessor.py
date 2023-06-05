@@ -57,6 +57,7 @@ class DataPreprocessor():
         
     def preprocess(self, df_name, split_ratio):
         df = self._read_df(df_name)
+        df = df["adc_actuator_pump","adc_level","adc_temp","adc_flow","adc_pressure_left","adc_pressure_right"]
         train_df, test_df = self._train_test_split(df, split_ratio)
         train_df, test_df = self._feature_selection(train_df, test_df)
         train_data, test_data = self._scale_data(train_df, test_df)
