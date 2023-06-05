@@ -11,9 +11,14 @@ from service.management import management_service
 def train_pca(self, param):
     preprocessor = DataPreprocessor()
 
+    print("read df")
     df = preprocessor._read_df(param["df_name"])
+    print("train test split")
     train_df, test_df = preprocessor._train_test_split(df, param["split_ratio"])
+    print("feature selection")
     train_df, test_df = preprocessor._feature_selection(train_df, test_df)
+    print(preprocessor.get_used_features())
+    print("Data scaling")
     train_data, test_data = preprocessor._scale_data(train_df, test_df)
 
     pca = PCA(n_components=param["n_components"])
